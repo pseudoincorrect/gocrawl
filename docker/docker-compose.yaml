@@ -1,0 +1,39 @@
+version: '2'
+
+volumes:
+  gocrawl_rabbitmq_data:
+  gocrawl_rabbitmq_log:
+
+
+networks:
+  app-net:
+    driver: bridge
+
+services:
+
+  rabbitmq:
+    image: 'bitnami/rabbitmq:3.10'
+    environment:
+      - RABBITMQ_DEFAULT_USER=user
+      - RABBITMQ_DEFAULT_PASS=password
+    ports:
+      - 5672:5672
+      - 15672:15672
+    volumes:
+      - gocrawl_rabbitmq_data:/var/lib/rabbitmq/
+      - gocrawl_rabbitmq_log:/var/log/rabbitmq
+    networks:
+      - app-net
+
+  server:
+    image: 'server'
+    ports:
+      - 8080:8080
+    networks:
+      - app-net
+    depends_on:
+      - rabbitmq
+  # worker:
+  #   image: 'worker'
+  #   networks:
+  #     - app-net
